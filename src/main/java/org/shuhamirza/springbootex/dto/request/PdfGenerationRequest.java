@@ -1,9 +1,9 @@
 package org.shuhamirza.springbootex.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.shuhamirza.springbootex.enums.TemplateType;
-import reactor.util.annotation.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -20,9 +20,9 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PdfGenerationRequest extends BaseRequest {
-    @NonNull
+    @NotNull
     private String templateBase64;
-    @NonNull
+    @NotNull
     private TemplateType templateType;
     private Map<String, String> stringMap;
     private Map<String, List<String>> listMap;

@@ -16,6 +16,6 @@ import reactor.core.publisher.Mono;
 public class HtmlTemplatePdfGenerator implements PdfGenerator {
     @Override
     public Mono<String> generatePdfFromTemplate(String template) {
-        return null;
+        return Mono.just("asdlpoakspod");
     }
 }

@@ -6,5 +6,5 @@ package org.shuhamirza.springbootex.enums;
  */
 public enum TemplateType {
     HTML,
-    PDF
+    LATEX
 }

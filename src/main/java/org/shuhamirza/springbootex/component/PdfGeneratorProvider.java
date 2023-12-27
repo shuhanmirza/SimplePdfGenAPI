@@ -20,7 +20,7 @@ public class PdfGeneratorProvider {
     public PdfGenerator getPdfGenerator(TemplateType templateType) {
         return switch (templateType) {
             case HTML -> htmlTemplatePdfGenerator;
-            case PDF -> latexTemplatePdfGenerator;
+            case LATEX -> latexTemplatePdfGenerator;
             default -> throw new RuntimeException(String.format("NO PDF GENERATOR FOR TEMPLATE TYPE %s", templateType));
         };
     }
