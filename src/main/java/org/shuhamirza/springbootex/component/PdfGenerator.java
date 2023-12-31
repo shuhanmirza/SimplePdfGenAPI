@@ -1,5 +1,6 @@
 package org.shuhamirza.springbootex.component;
 
+import org.shuhamirza.springbootex.dto.PdfBuildingInstruction;
 import reactor.core.publisher.Mono;
 
 /**
@@ -7,5 +8,5 @@ import reactor.core.publisher.Mono;
  * @since 27/12/23
  */
 public interface PdfGenerator {
-    Mono<String> generatePdfFromTemplate(String template);
+    Mono<String> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction);
 }

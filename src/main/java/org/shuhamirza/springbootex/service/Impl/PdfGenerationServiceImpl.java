@@ -3,6 +3,7 @@ package org.shuhamirza.springbootex.service.Impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.shuhamirza.springbootex.component.PdfGeneratorProvider;
+import org.shuhamirza.springbootex.dto.PdfBuildingInstruction;
 import org.shuhamirza.springbootex.dto.request.PdfGenerationRequest;
 import org.shuhamirza.springbootex.dto.response.PdfGenerationResponse;
 import org.shuhamirza.springbootex.service.PdfGenerationService;
@@ -24,7 +25,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
         return pdfGeneratorProvider
                 .getPdfGenerator(pdfGenerationRequest.getTemplateType())
-                .generatePdfFromTemplate(pdfGenerationRequest.getTemplateBase64())
+                .generatePdfFromTemplate(PdfBuildingInstruction.builder().build())
                 .flatMap(pdf -> {
                     log.info(pdf);
 
