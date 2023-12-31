@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,8 +20,12 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PdfBuildingInstruction implements Serializable {
-    private String templateString;
-    private Map<String, String> stringMap;
-    private Map<String, List<String>> listMap;
-    private Map<String, String> imageUrlMap;
+    @Builder.Default
+    private String templateString = "";
+    @Builder.Default
+    private Map<String, String> stringMap = new HashMap<>();
+    @Builder.Default
+    private Map<String, List<String>> listMap = new HashMap<>();
+    @Builder.Default
+    private Map<String, String> imageUrlMap = new HashMap<>();
 }
