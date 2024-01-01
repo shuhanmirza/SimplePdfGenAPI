@@ -1,6 +1,5 @@
 package org.shuhanmirza.springbootex.component.latex;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -12,8 +11,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -26,32 +27,38 @@ import java.util.stream.Collectors;
 public class LatexTemplatePdfGenerator implements PdfGenerator {
     private final UtilityService utilityService;
 
+    //TODO: clean up temp folder after completion
     @Override
     public Mono<String> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
 
-        return Mono.fromFuture(utilityService.createTemporaryDirectory(Utility.getApplicationName()))
+        return Mono.fromFuture(utilityService.createTemporaryDirectory(Utility.APPLICATION_NAME))
                 .flatMap(tempFolderPath -> {
                     log.info("LatexGenerator: Temp Folder Generated {}", tempFolderPath);
                     return downloadAllImageFiles(pdfBuildingInstruction, tempFolderPath)
-                            .flatMap(result -> Mono.just(tempFolderPath));
-                }).flatMap(string -> {
-                    log.info(string);
-                    return prepareLatexFile(pdfBuildingInstruction);
+                            .flatMap(imageDownloaded -> prepareLatexFile(pdfBuildingInstruction, tempFolderPath))
+                            .flatMap(latexFilePath -> Mono.fromFuture(compilePdf(tempFolderPath)))
+                            .flatMap(compiled -> Mono.fromFuture(utilityService.readFileToBase64(tempFolderPath.concat("/").concat(Utility.LATEX_FILE_OUTPUT))));
                 });
     }
 
-    private Mono<String> prepareLatexFile(PdfBuildingInstruction pdfBuildingInstruction) {
+    private Mono<String> prepareLatexFile(PdfBuildingInstruction pdfBuildingInstruction, String tempFolderPath) {
 
         var templateKeyValues = new HashMap<String, String>();
         for (String key : pdfBuildingInstruction.getStringMap().keySet()) {
             templateKeyValues.put("%".concat(key).concat("%"), pdfBuildingInstruction.getStringMap().get(key));
         }
 
+        for (String key : pdfBuildingInstruction.getListMap().keySet()) {
+            templateKeyValues.put("%".concat(key).concat("%"), pdfBuildingInstruction.getListMap().get(key).stream().map(value -> value.concat("&")).collect(Collectors.joining()));
+        }
+
         var latexFileContentText = StringUtils.replaceEach(pdfBuildingInstruction.getTemplateString(), templateKeyValues.keySet().toArray(new String[0]), templateKeyValues.values().toArray(new String[0]));
 
-        log.info(latexFileContentText);
-
-        return Mono.just(latexFileContentText);
+        return Mono.fromFuture(utilityService.createTextFile(latexFileContentText, tempFolderPath.concat("/").concat(Utility.LATEX_FILE_INPUT)))
+                .map(latexFilePath -> {
+                    log.info("LatexGenerator: latex file generated | path {}", latexFilePath);
+                    return latexFilePath;
+                });
     }
 
     private Mono<Boolean> downloadAllImageFiles(PdfBuildingInstruction pdfBuildingInstruction, String tempFolderPath) {
@@ -66,57 +73,25 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
     }
 
     private Mono<Boolean> downloadImageFile(String urlString, String fileName, String tempFolderPath) {
-        return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath))
+        return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath)) //TODO: need to consider caching to improve throughput
                 .onErrorResume(throwable -> Mono.just("")) //Failing to download one image should not hamper generating the pdf
                 .map(downloadedFileName -> !downloadedFileName.isEmpty());
     }
 
-    @PostConstruct
-    public void test() {
-        generatePdfFromTemplate(
-                PdfBuildingInstruction
-                        .builder()
-                        .templateString(getTemplate())
-                        .stringMap(Map.of("FOOD", "Birun Vaat", "CITY", "Sylhet"))
-                        .imageUrlMap(Map.of("universe.jpg", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hubble_ultra_deep_field.jpg/1024px-Hubble_ultra_deep_field.jpg"))
-                        .build())
-                .subscribe();
-    }
+    private CompletableFuture<Boolean> compilePdf(String tempFolderPath) {
+        try {
+            var processBuilder = new ProcessBuilder();
+            processBuilder.directory(new File(tempFolderPath));
+            processBuilder.command("pdflatex", "-no-shell-escape", "-interaction", "nonstopmode", "main");
+            var process = processBuilder.start();
+            int exitCode = process.waitFor();
 
-    public String getTemplate() {
-        return "\\documentclass{article}\n" +
-                "\\usepackage{graphicx} % Required for inserting images\n" +
-                "\n" +
-                "\\usepackage{hyperref}\n" +
-                "\\hypersetup{\n" +
-                "    colorlinks=true,\n" +
-                "    urlcolor=blue,\n" +
-                "    breaklinks=true\n" +
-                "}\n" +
-                "\n" +
-                "\\title{SpringBooTex}\n" +
-                "\\author{shuhan mirza}\n" +
-                "\\date{\\today}\n" +
-                "\n" +
-                "\\newcommand{\\food}{%FOOD%}\n" +
-                "\\newcommand{\\city}{%CITY%}\n" +
-                "\n" +
-                "\\begin{document}\n" +
-                "\n" +
-                "\\maketitle\n" +
-                "\n" +
-                "\\section{Single Variable}\n" +
-                "\n" +
-                "I am from \\city. I love eating \\food.\n" +
-                "\n" +
-                "\\section{Image}\n" +
-                "This image was downloaded from \\href{https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hubble_ultra_deep_field.jpg/1024px-Hubble_ultra_deep_field.jpg}{Wikipedia}\n" +
-                "\n" +
-                "\\vspace{1cm}\n" +
-                "\\includegraphics[scale=0.2]{universe.jpg}\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\\end{document}\n";
+            log.info("LatexGenerator: latex compilation successful | path {} | exit code {}", tempFolderPath, exitCode);
+
+            return CompletableFuture.completedFuture(exitCode == 0);
+        } catch (InterruptedException | IOException exception) {
+            log.info("LatexGenerator: latex compilation failed | path {}", tempFolderPath, exception);
+            return CompletableFuture.failedFuture(exception);
+        }
     }
 }

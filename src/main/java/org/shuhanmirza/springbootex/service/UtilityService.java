@@ -4,12 +4,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.jpountz.xxhash.XXHashFactory;
+import org.apache.commons.io.FileUtils;
 import org.shuhanmirza.springbootex.util.Utility;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -17,6 +16,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,7 +33,7 @@ public class UtilityService {
 
         var byteArrayInputStream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 
-        try (var hash64 = xxHashFactory.newStreamingHash64(Utility.getXxHashSeed())) {
+        try (var hash64 = xxHashFactory.newStreamingHash64(Utility.XX_HASH_SEED)) {
             byte[] buf = new byte[8192];
             for (; ; ) {
                 int read = byteArrayInputStream.read(buf);
@@ -62,6 +62,16 @@ public class UtilityService {
         }
     }
 
+    public CompletableFuture<String> createTextFile(String fileContent, String filePath) {
+        try (var fileWriter = new FileWriter(filePath)) {
+            fileWriter.write(fileContent);
+            return CompletableFuture.completedFuture(filePath);
+        } catch (IOException e) {
+            log.error("Failed to create file with filePath - {}", filePath, e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
     public CompletableFuture<String> downloadFile(String urlString, String fileName, String path) {
         try {
             var url = new URL(urlString);
@@ -79,6 +89,16 @@ public class UtilityService {
             return CompletableFuture.completedFuture(fileName);
         } catch (IOException exception) {
             log.error("Failed to download | url - {} | filename - {} | path {}", urlString, fileName, path);
+            return CompletableFuture.failedFuture(exception);
+        }
+    }
+
+    public CompletableFuture<String> readFileToBase64(String filePath) {
+        try {
+            byte[] fileContent = FileUtils.readFileToByteArray(new File(filePath));
+            return CompletableFuture.completedFuture(Base64.getEncoder().encodeToString(fileContent));
+        } catch (IOException exception) {
+            log.error("Failed to read file to base 64 | path {}", filePath, exception);
             return CompletableFuture.failedFuture(exception);
         }
     }
