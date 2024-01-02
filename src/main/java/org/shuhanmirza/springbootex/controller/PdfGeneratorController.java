@@ -27,4 +27,7 @@ public class PdfGeneratorController {
     public Mono<PdfGenerationResponse> generatePdf(@RequestBody @Valid PdfGenerationRequest pdfGenerationRequest) {
         return pdfGenerationService.generatePdfFromTemplate(pdfGenerationRequest);
     }
+
+    //TODO: return file as octet stream
+    //TODO: return file in a callback url
 }
