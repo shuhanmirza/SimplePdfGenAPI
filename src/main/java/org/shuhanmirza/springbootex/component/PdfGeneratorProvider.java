@@ -2,8 +2,8 @@ package org.shuhanmirza.springbootex.component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.shuhanmirza.springbootex.component.html.HtmlTemplatePdfGenerator;
-import org.shuhanmirza.springbootex.component.latex.LatexTemplatePdfGenerator;
+import org.shuhanmirza.springbootex.component.pdfgenerator.HtmlTemplatePdfGenerator;
+import org.shuhanmirza.springbootex.component.pdfgenerator.LatexTemplatePdfGenerator;
 import org.shuhanmirza.springbootex.enums.TemplateType;
 import org.springframework.stereotype.Component;
 

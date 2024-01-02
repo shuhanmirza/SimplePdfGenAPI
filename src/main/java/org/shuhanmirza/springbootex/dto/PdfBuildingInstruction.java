@@ -27,5 +27,5 @@ public class PdfBuildingInstruction implements Serializable {
     @Builder.Default
     private Map<String, List<String>> listMap = new HashMap<>();
     @Builder.Default
-    private Map<String, String> imageUrlMap = new HashMap<>();
+    private Map<String, String> fileUrlMap = new HashMap<>();
 }

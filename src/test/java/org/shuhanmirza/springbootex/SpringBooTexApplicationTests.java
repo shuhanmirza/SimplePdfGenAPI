@@ -2,7 +2,7 @@ package org.shuhanmirza.springbootex;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.shuhanmirza.springbootex.component.latex.LatexTemplatePdfGenerator;
+import org.shuhanmirza.springbootex.component.pdfgenerator.LatexTemplatePdfGenerator;
 import org.shuhanmirza.springbootex.dto.PdfBuildingInstruction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ class SpringBooTexApplicationTests {
                                 .templateString(getTemplate())
                                 .stringMap(Map.of("FOOD", "Birun Vaat", "CITY", "Sylhet", "LIST_SIZE", "3"))
                                 .listMap(Map.of("COUNTRY_LIST", List.of("Bangladesh", "United States", "United Kingdom"), "CITY_LIST", List.of("Dhaka", "Washington DC", "London")))
-                                .imageUrlMap(Map.of("universe.jpg", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hubble_ultra_deep_field.jpg/1024px-Hubble_ultra_deep_field.jpg"))
+                                .fileUrlMap(Map.of("universe.jpg", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hubble_ultra_deep_field.jpg/1024px-Hubble_ultra_deep_field.jpg"))
                                 .build())
                 .flatMap(base64 -> {
                     log.info("file -> {}", base64);

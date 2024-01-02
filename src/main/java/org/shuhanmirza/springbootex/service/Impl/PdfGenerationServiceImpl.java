@@ -3,6 +3,7 @@ package org.shuhanmirza.springbootex.service.Impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.shuhanmirza.springbootex.component.PdfGeneratorProvider;
+import org.shuhanmirza.springbootex.component.TemplateExtractorProvider;
 import org.shuhanmirza.springbootex.dto.PdfBuildingInstruction;
 import org.shuhanmirza.springbootex.dto.request.PdfGenerationRequest;
 import org.shuhanmirza.springbootex.dto.response.PdfGenerationResponse;
@@ -19,17 +20,34 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class PdfGenerationServiceImpl implements PdfGenerationService {
     private final PdfGeneratorProvider pdfGeneratorProvider;
+    private final TemplateExtractorProvider templateExtractorProvider;
 
     @Override
     public Mono<PdfGenerationResponse> generatePdfFromTemplate(PdfGenerationRequest pdfGenerationRequest) {
+        var templateExtractor = templateExtractorProvider.getTemplateExtractor(pdfGenerationRequest.getTemplateSourceType());
+        var pdfGenerator = pdfGeneratorProvider.getPdfGenerator(pdfGenerationRequest.getTemplateType());
 
-        return pdfGeneratorProvider
-                .getPdfGenerator(pdfGenerationRequest.getTemplateType())
-                .generatePdfFromTemplate(PdfBuildingInstruction.builder().build())
-                .flatMap(pdf -> {
-                    log.info(pdf);
-
-                    return Mono.just(PdfGenerationResponse.builder().build());
+        return templateExtractor
+                .getTemplateFromSource(pdfGenerationRequest.getTemplateSource())
+                .flatMap(templateString -> {
+                    return pdfGenerator
+                            .generatePdfFromTemplate(
+                                    PdfBuildingInstruction
+                                            .builder()
+                                            .templateString(templateString)
+                                            .listMap(pdfGenerationRequest.getListMap())
+                                            .stringMap(pdfGenerationRequest.getStringMap())
+                                            .fileUrlMap(pdfGenerationRequest.getFileUrlMap())
+                                            .build()
+                            );
+                })
+                .flatMap(pdfBase64 -> {
+                    return Mono.just(
+                            PdfGenerationResponse
+                                    .builder()
+                                    .pdfBase64(pdfBase64)
+                                    .build()
+                    );
                 });
     }
 }

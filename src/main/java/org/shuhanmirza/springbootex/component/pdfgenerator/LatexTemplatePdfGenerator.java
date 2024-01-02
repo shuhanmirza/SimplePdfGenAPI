@@ -1,4 +1,4 @@
-package org.shuhanmirza.springbootex.component.latex;
+package org.shuhanmirza.springbootex.component.pdfgenerator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +34,8 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
         return Mono.fromFuture(utilityService.createTemporaryDirectory(Utility.APPLICATION_NAME))
                 .flatMap(tempFolderPath -> {
                     log.info("LatexGenerator: Temp Folder Generated {}", tempFolderPath);
-                    return downloadAllImageFiles(pdfBuildingInstruction, tempFolderPath)
-                            .flatMap(imageDownloaded -> prepareLatexFile(pdfBuildingInstruction, tempFolderPath))
+                    return downloadAllFiles(pdfBuildingInstruction, tempFolderPath)
+                            .flatMap(fileDownloaded -> prepareLatexFile(pdfBuildingInstruction, tempFolderPath))
                             .flatMap(latexFilePath -> Mono.fromFuture(compilePdf(tempFolderPath)))
                             .flatMap(compiled -> Mono.fromFuture(utilityService.readFileToBase64(tempFolderPath.concat("/").concat(Utility.LATEX_FILE_OUTPUT))));
                 });
@@ -61,20 +61,20 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
                 });
     }
 
-    private Mono<Boolean> downloadAllImageFiles(PdfBuildingInstruction pdfBuildingInstruction, String tempFolderPath) {
-        var imageUrlMap = pdfBuildingInstruction.getImageUrlMap();
-        return Flux.fromIterable(imageUrlMap.keySet())
-                .flatMap(imageFilename -> downloadImageFile(imageUrlMap.get(imageFilename), imageFilename, tempFolderPath))
+    private Mono<Boolean> downloadAllFiles(PdfBuildingInstruction pdfBuildingInstruction, String tempFolderPath) {
+        var fileUrlMap = pdfBuildingInstruction.getFileUrlMap();
+        return Flux.fromIterable(fileUrlMap.keySet())
+                .flatMap(fileName -> downloadFile(fileUrlMap.get(fileName), fileName, tempFolderPath))
                 .collect(Collectors.toList())
                 .flatMap(resultList -> {
-                    log.info("LatexGenerator: image downloaded | count {}", resultList.size()); //TODO: add success and failed count
+                    log.info("LatexGenerator: file downloaded | count {}", resultList.size()); //TODO: add success and failed count
                     return Mono.just(Boolean.TRUE);
                 });
     }
 
-    private Mono<Boolean> downloadImageFile(String urlString, String fileName, String tempFolderPath) {
+    private Mono<Boolean> downloadFile(String urlString, String fileName, String tempFolderPath) {
         return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath)) //TODO: need to consider caching to improve throughput
-                .onErrorResume(throwable -> Mono.just("")) //Failing to download one image should not hamper generating the pdf
+                .onErrorResume(throwable -> Mono.just("")) //Failing to download one file should not hamper generating the pdf
                 .map(downloadedFileName -> !downloadedFileName.isEmpty());
     }
 

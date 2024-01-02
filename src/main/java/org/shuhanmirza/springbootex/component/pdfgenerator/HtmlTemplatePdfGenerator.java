@@ -1,4 +1,4 @@
-package org.shuhanmirza.springbootex.component.html;
+package org.shuhanmirza.springbootex.component.pdfgenerator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
