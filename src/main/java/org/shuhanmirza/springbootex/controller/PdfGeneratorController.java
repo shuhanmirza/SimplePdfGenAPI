@@ -30,5 +30,4 @@ public class PdfGeneratorController {
 
     //TODO: return file as octet stream
     //TODO: return file in a callback url
-    //TODO: Fix missing span and trace id
 }
