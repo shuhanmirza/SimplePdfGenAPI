@@ -21,7 +21,7 @@ public class TemplateExtractorProvider {
         return switch (templateSourceType) {
             case BASE64 -> base64TemplateExtractor;
             default ->
-                    throw new RuntimeException(String.format("NO PDF GENERATOR FOR TEMPLATE SOURCE TYPE %s", templateSourceType));
+                    throw new RuntimeException(String.format("NO TEMPLATE EXTRACTOR FOR TEMPLATE SOURCE TYPE %s", templateSourceType));
         };
     }
 }

@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
 
     //TODO: clean up temp folder after completion
     @Override
-    public Mono<String> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
+    public Mono<InputStream> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
 
         return Mono.fromFuture(utilityService.createTemporaryDirectory(Utility.APPLICATION_NAME))
                 .flatMap(tempFolderPath -> {
@@ -37,7 +38,7 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
                     return downloadAllFiles(pdfBuildingInstruction, tempFolderPath)
                             .flatMap(fileDownloaded -> prepareLatexFile(pdfBuildingInstruction, tempFolderPath))
                             .flatMap(latexFilePath -> Mono.fromFuture(compilePdf(tempFolderPath)))
-                            .flatMap(compiled -> Mono.fromFuture(utilityService.readFileToBase64(tempFolderPath.concat("/").concat(Utility.LATEX_FILE_OUTPUT))));
+                            .flatMap(compiled -> utilityService.readFileToInputStream(tempFolderPath.concat("/").concat(Utility.LATEX_FILE_OUTPUT)));
                 });
     }
 

@@ -1,7 +1,8 @@
 package org.shuhanmirza.springbootex.service;
 
 import org.shuhanmirza.springbootex.dto.request.PdfGenerationRequest;
-import org.shuhanmirza.springbootex.dto.response.PdfGenerationResponse;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 /**
@@ -9,5 +10,5 @@ import reactor.core.publisher.Mono;
  * @since 27/12/23
  */
 public interface PdfGenerationService {
-    Mono<PdfGenerationResponse> generatePdfFromTemplate(PdfGenerationRequest pdfGenerationRequest);
+    Mono<ResponseEntity<?>> generatePdfFromTemplate(PdfGenerationRequest pdfGenerationRequest);
 }

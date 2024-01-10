@@ -3,6 +3,7 @@ package org.shuhanmirza.springbootex.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.shuhanmirza.springbootex.enums.ResponseType;
 import org.shuhanmirza.springbootex.enums.TemplateSourceType;
 import org.shuhanmirza.springbootex.enums.TemplateType;
 
@@ -34,4 +35,6 @@ public class PdfGenerationRequest extends BaseRequest {
     private Map<String, List<String>> listMap = new HashMap<>();
     @Builder.Default
     private Map<String, String> fileUrlMap = new HashMap<>();
+    @Builder.Default
+    private ResponseType responseType = ResponseType.JSON;
 }

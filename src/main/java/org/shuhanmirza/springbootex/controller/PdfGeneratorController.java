@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.shuhanmirza.springbootex.dto.request.PdfGenerationRequest;
-import org.shuhanmirza.springbootex.dto.response.PdfGenerationResponse;
 import org.shuhanmirza.springbootex.service.PdfGenerationService;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -17,17 +19,18 @@ import reactor.core.publisher.Mono;
  */
 
 @RestController
-@BaseController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping(value = "/api")
 public class PdfGeneratorController {
     private final PdfGenerationService pdfGenerationService;
 
-    @PostMapping("/generate-pdf")
-    public Mono<PdfGenerationResponse> generatePdf(@RequestBody @Valid PdfGenerationRequest pdfGenerationRequest) {
+    @PostMapping(value = "/generate-pdf", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<ResponseEntity<?>> generatePdf(@RequestBody @Valid PdfGenerationRequest pdfGenerationRequest) {
         return pdfGenerationService.generatePdfFromTemplate(pdfGenerationRequest);
     }
 
     //TODO: return file as octet stream
     //TODO: return file in a callback url
+    //TODO: span and trace id
 }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
+
 /**
  * @author Shuhan Mirza
  * @since 27/12/23
@@ -20,7 +22,7 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
     private final SpringTemplateEngine templateEngine;
 
     @Override
-    public Mono<String> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
+    public Mono<InputStream> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
         //TODO: Implement htmlTemplate Engine
         throw new RuntimeException("NOT YET IMPLEMENTED");
     }

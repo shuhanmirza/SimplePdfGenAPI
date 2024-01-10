@@ -7,6 +7,7 @@ import net.jpountz.xxhash.XXHashFactory;
 import org.apache.commons.io.FileUtils;
 import org.shuhanmirza.springbootex.util.Utility;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.net.URL;
@@ -99,6 +100,25 @@ public class UtilityService {
             return CompletableFuture.completedFuture(Base64.getEncoder().encodeToString(fileContent));
         } catch (IOException exception) {
             log.error("Failed to read file to base 64 | path {}", filePath, exception);
+            return CompletableFuture.failedFuture(exception);
+        }
+    }
+
+    public Mono<InputStream> readFileToInputStream(String filePath) {
+        try {
+            byte[] fileContent = FileUtils.readFileToByteArray(new File(filePath));
+            return Mono.just(new ByteArrayInputStream(fileContent));
+        } catch (IOException exception) {
+            log.error("Failed to read file to input stream | path {}", filePath, exception);
+            return Mono.error(exception);
+        }
+    }
+
+    public CompletableFuture<String> convertInputStreamToBase64(InputStream inputStream) {
+        try {
+            return CompletableFuture.completedFuture(Base64.getEncoder().encodeToString(inputStream.readAllBytes()));
+        } catch (IOException exception) {
+            log.error("Failed to convert InputStream to Base64", exception);
             return CompletableFuture.failedFuture(exception);
         }
     }
