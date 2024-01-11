@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class LatexTemplatePdfGenerator implements PdfGenerator {
     private final UtilityService utilityService;
 
-    //TODO: clean up temp folder after completion
     @Override
     public Mono<InputStream> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
 

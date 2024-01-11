@@ -16,6 +16,7 @@ public class Utility {
     public static String APPLICATION_NAME = "SpringBooTex";
     public static String LATEX_FILE_INPUT = "main.tex";
     public static String LATEX_FILE_OUTPUT = "main.pdf";
+    public static String HTML_FILE_OUTPUT = "main.pdf";
 
     public static String getTempDirectoryPath() {
         return System.getProperty("java.io.tmpdir");

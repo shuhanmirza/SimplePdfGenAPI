@@ -30,7 +30,8 @@ public class PdfGeneratorController {
         return pdfGenerationService.generatePdfFromTemplate(pdfGenerationRequest);
     }
 
-    //TODO: return file as octet stream
     //TODO: return file in a callback url
     //TODO: span and trace id
+    //TODO: add password protection for pdf
+    //TODO: clean up temp folder after completion
 }
