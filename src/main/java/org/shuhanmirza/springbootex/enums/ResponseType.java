@@ -6,6 +6,6 @@ package org.shuhanmirza.springbootex.enums;
  */
 public enum ResponseType {
     JSON,
-    STREAM,
+    OCTET_STREAM,
     PDF
 }
