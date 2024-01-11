@@ -57,7 +57,7 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
             pdfRendererBuilder.useFastMode();
             pdfRendererBuilder.withHtmlContent(html, "/");
             pdfRendererBuilder.toStream(outputStream);
-            pdfRendererBuilder.run();
+            pdfRendererBuilder.run(); //TODO: test if we need to incorporate useFont()
 
             log.info("HtmlGenerator: PDF generated | path {}", pdfPath);
 
@@ -78,6 +78,7 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
         var context = new Context();
         context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getStringMap()));
         context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getListMap()));
+        context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getFileUrlMap()));
         return context;
     }
 }
