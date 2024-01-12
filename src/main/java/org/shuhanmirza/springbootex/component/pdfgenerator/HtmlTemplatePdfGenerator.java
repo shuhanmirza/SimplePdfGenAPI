@@ -3,6 +3,7 @@ package org.shuhanmirza.springbootex.component.pdfgenerator;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.shuhanmirza.springbootex.component.PdfGenerator;
+import org.shuhanmirza.springbootex.dto.FontFile;
 import org.shuhanmirza.springbootex.dto.PdfBuildingInstruction;
 import org.shuhanmirza.springbootex.service.UtilityService;
 import org.shuhanmirza.springbootex.util.Utility;
@@ -11,12 +12,15 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.StringTemplateResolver;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Shuhan Mirza
@@ -47,25 +51,51 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
                     var context = generateContext(pdfBuildingInstruction);
 
                     return generateHtml(pdfBuildingInstruction, context)
-                            .flatMap(generatedHtml -> generatedPdfFromHtml(generatedHtml, tempFolderPath.concat("/").concat(Utility.HTML_FILE_OUTPUT)));
+                            .flatMap(generatedHtml -> generatedPdfFromHtml(pdfBuildingInstruction, tempFolderPath, generatedHtml, tempFolderPath.concat("/").concat(Utility.HTML_FILE_OUTPUT)));
                 });
     }
 
-    private Mono<InputStream> generatedPdfFromHtml(String html, String pdfPath) {
-        var pdfRendererBuilder = new PdfRendererBuilder();
-        try (OutputStream outputStream = new FileOutputStream(pdfPath)) {
-            pdfRendererBuilder.useFastMode();
-            pdfRendererBuilder.withHtmlContent(html, "/");
-            pdfRendererBuilder.toStream(outputStream);
-            pdfRendererBuilder.run(); //TODO: test if we need to incorporate useFont()
+    private Mono<List<FontFile>> downloadAllFonts(PdfBuildingInstruction pdfBuildingInstruction, String tempFolderPath) {
+        var fileUrlMap = pdfBuildingInstruction.getFileUrlMap();
+        return Flux.fromIterable(fileUrlMap.keySet())
+                .flatMap(fontFamilyName -> downloadFont(fileUrlMap.get(fontFamilyName), fontFamilyName, fontFamilyName, tempFolderPath))//Using fontfamily name as the filename
+                .filter(fontFile -> null != fontFile.getFile())
+                .collect(Collectors.toList())
+                .flatMap(resultList -> {
+                    log.info("HtmlGenerator: {} fonts downloaded out of {}", resultList.size(), fileUrlMap.size());
+                    return Mono.just(resultList);
+                });
+    }
 
-            log.info("HtmlGenerator: PDF generated | path {}", pdfPath);
+    private Mono<FontFile> downloadFont(String urlString, String fileName, String fontFamily, String tempFolderPath) {
+        return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath))
+                .map(file -> FontFile.builder().fontFamily(fontFamily).file(file).build())
+                .onErrorResume(throwable -> Mono.just(FontFile.builder().build())); //Failing to download one font should not hamper generating the pdf
+    }
 
-            return utilityService.readFileToInputStream(pdfPath);
-        } catch (Exception ex) {
-            log.error("HtmlGenerator: Error Generating Receipt ", ex);
-            return Mono.error(ex);
-        }
+
+    private Mono<InputStream> generatedPdfFromHtml(PdfBuildingInstruction pdfBuildingInstruction, String tempFolder, String html, String pdfPath) {
+        return downloadAllFonts(pdfBuildingInstruction, tempFolder)
+                .flatMap(fontFileList -> {
+                    var pdfRendererBuilder = new PdfRendererBuilder();
+                    for (var fontFile : fontFileList) {
+                        pdfRendererBuilder.useFont(fontFile.getFile(), fontFile.getFontFamily());
+                    }
+                    try (OutputStream outputStream = new FileOutputStream(pdfPath)) {
+                        pdfRendererBuilder.useFastMode();
+                        pdfRendererBuilder.withHtmlContent(html, "/");
+                        pdfRendererBuilder.toStream(outputStream);
+                        pdfRendererBuilder.run();
+
+                        log.info("HtmlGenerator: PDF generated | path {}", pdfPath);
+
+                        return utilityService.readFileToInputStream(pdfPath);
+                    } catch (Exception ex) {
+                        log.error("HtmlGenerator: Error Generating Receipt ", ex);
+                        return Mono.error(ex);
+                    }
+                });
+
     }
 
     private Mono<String> generateHtml(PdfBuildingInstruction pdfBuildingInstruction, Context context) {
@@ -78,7 +108,6 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
         var context = new Context();
         context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getStringMap()));
         context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getListMap()));
-        context.setVariables(new HashMap<String, Object>(pdfBuildingInstruction.getFileUrlMap()));
         return context;
     }
 }

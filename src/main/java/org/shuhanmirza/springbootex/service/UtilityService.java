@@ -73,7 +73,7 @@ public class UtilityService {
         }
     }
 
-    public CompletableFuture<String> downloadFile(String urlString, String fileName, String path) {
+    public CompletableFuture<File> downloadFile(String urlString, String fileName, String path) {
         try {
             var url = new URL(urlString);
             ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
@@ -87,7 +87,7 @@ public class UtilityService {
 
             log.info("File downloaded successfully | url - {} | filename - {} | path {}", urlString, fileName, path);
 
-            return CompletableFuture.completedFuture(fileName);
+            return CompletableFuture.completedFuture(file);
         } catch (IOException exception) {
             log.error("Failed to download | url - {} | filename - {} | path {}", urlString, fileName, path);
             return CompletableFuture.failedFuture(exception);

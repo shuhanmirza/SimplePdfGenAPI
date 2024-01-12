@@ -65,17 +65,18 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
         var fileUrlMap = pdfBuildingInstruction.getFileUrlMap();
         return Flux.fromIterable(fileUrlMap.keySet())
                 .flatMap(fileName -> downloadFile(fileUrlMap.get(fileName), fileName, tempFolderPath))
+                .filter(filePath -> !filePath.isEmpty())
                 .collect(Collectors.toList())
                 .flatMap(resultList -> {
-                    log.info("LatexGenerator: file downloaded | count {}", resultList.size()); //TODO: add success and failed count
+                    log.info("LatexGenerator: {} files downloaded out of {} ", resultList.size(), fileUrlMap.size());
                     return Mono.just(Boolean.TRUE);
                 });
     }
 
-    private Mono<Boolean> downloadFile(String urlString, String fileName, String tempFolderPath) {
-        return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath)) //TODO: need to consider caching to improve throughput
-                .onErrorResume(throwable -> Mono.just("")) //Failing to download one file should not hamper generating the pdf
-                .map(downloadedFileName -> !downloadedFileName.isEmpty());
+    private Mono<String> downloadFile(String urlString, String fileName, String tempFolderPath) {
+        return Mono.fromFuture(utilityService.downloadFile(urlString, fileName, tempFolderPath))
+                .map(File::getAbsolutePath)
+                .onErrorResume(throwable -> Mono.just(""));//Failing to download one file should not hamper generating the pdf
     }
 
     private CompletableFuture<Boolean> compilePdf(String tempFolderPath) {
