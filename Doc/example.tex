@@ -1,0 +1,50 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{graphicx}
+\usepackage[empty]{fullpage}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    breaklinks=true
+}
+\usepackage{arrayjob}
+\usepackage{multido}
+
+\newcommand{\food}{%FOOD%}
+\newcommand{\city}{%CITY%}
+
+\newarray\CountryList
+\newarray\CityList
+
+\readarray{CountryList}{%COUNTRY_LIST%}
+\readarray{CityList}{%CITY_LIST%}
+\newcommand{\ListSize}{%LIST_SIZE%}
+
+
+\title{SpringBooTex Example}
+\date{}
+\begin{document}
+
+\maketitle
+
+\section{Single Variable}
+
+I am from \city. I love eating \food.
+
+\section{Image}
+This image was downloaded from \href{https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hubble_ultra_deep_field.jpg/1024px-Hubble_ultra_deep_field.jpg}{Wikipedia}
+
+\vspace{1cm}
+\includegraphics[scale=0.2]{universe.jpg}
+
+\section{Array}
+
+List of Countries and their Capitals
+
+\begin{itemize}
+    \multido{\i=1+1}{\ListSize}{
+        \item \CountryList(\i) : \CityList(\i)
+    }
+\end{itemize}
+
+\end{document}
