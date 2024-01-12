@@ -22,7 +22,7 @@
             text-decoration: none;
         }
 
-        @page{
+        @page {
             size: A4 portrait;
         }
 
@@ -213,7 +213,8 @@
 
 <body>
     <main>
-        <h1 class="clearfix"><small><span>DATE</span><br/><span th:text="${date}"></span></small> <span th:text="${title}"></span> <small><span>DUE
+        <h1 class="clearfix"><small><span>DATE</span><br /><span th:text="${date}"></span></small> <span
+                th:text="${title}"></span> <small><span>DUE
                     DATE</span><br /><span th:text="${dueDate}"></span></small></h1>
         <table>
             <thead>
@@ -226,46 +227,25 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="service">Design</td>
-                    <td class="desc">Creating a recognizable design solution based on the company's existing visual
-                        identity</td>
-                    <td class="unit">$40.00</td>
-                    <td class="qty">26</td>
-                    <td class="total">$1,040.00</td>
+                <tr th:each="service, serviceStat : ${serviceList}">
+                    <td class="service" th:text="${serviceList.get(serviceStat.index)}"></td>
+                    <td class="desc" th:text="${descriptionList.get(serviceStat.index)}"></td>
+                    <td class="unit" th:text="${unitList.get(serviceStat.index)}"></td>
+                    <td class="qty" th:text="${quantityList.get(serviceStat.index)}"></td>
+                    <td class="total" th:text="${totalAmountList.get(serviceStat.index)}">$1</td>
                 </tr>
-                <tr>
-                    <td class="service">Development</td>
-                    <td class="desc">Developing a Content Management System-based Website</td>
-                    <td class="unit">$40.00</td>
-                    <td class="qty">80</td>
-                    <td class="total">$3,200.00</td>
-                </tr>
-                <tr>
-                    <td class="service">SEO</td>
-                    <td class="desc">Optimize the site for search engines (SEO)</td>
-                    <td class="unit">$40.00</td>
-                    <td class="qty">20</td>
-                    <td class="total">$800.00</td>
-                </tr>
-                <tr>
-                    <td class="service">Training</td>
-                    <td class="desc">Initial training sessions for staff responsible for uploading web content</td>
-                    <td class="unit">$40.00</td>
-                    <td class="qty">4</td>
-                    <td class="total">$160.00</td>
-                </tr>
+
                 <tr>
                     <td colspan="4" class="sub">SUBTOTAL</td>
-                    <td class="sub total">$5,200.00</td>
+                    <td class="sub total" th:text="${subtotal}"></td>
                 </tr>
                 <tr>
-                    <td colspan="4">TAX 25%</td>
-                    <td class="total">$1,300.00</td>
+                    <td colspan="4" th:text="${taxTitle}"></td>
+                    <td class="total" th:text="${taxAmount}"></td>
                 </tr>
                 <tr>
                     <td colspan="4" class="grand total">GRAND TOTAL</td>
-                    <td class="grand total">$6,500.00</td>
+                    <td class="grand total" th:text="${grandTotal}"></td>
                 </tr>
             </tbody>
         </table>
