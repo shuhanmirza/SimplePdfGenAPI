@@ -140,6 +140,8 @@ And the generated PDF is
 
 At first, SpringBooTex prepares the HTML using the Thymeleaf template engine. Then it leverages `openhtmltopdf` to render PDF from HTML. If you do not want to provide fonts through HTML, add font source URLs in the `fileUrlMap`. SpringBootex will download and add the fonts during PDF rendering.
 
+## Postman Documentation URL
+https://documenter.getpostman.com/view/4531605/2s9YsNcVGU
 
 ## Contributing
 Please!
