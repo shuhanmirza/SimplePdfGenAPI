@@ -8,6 +8,6 @@ services:
     restart: unless-stopped
     container_name: "springbootex"
     ports:
-      - "8080:8080"
+      - "10800:10800"
 
 
