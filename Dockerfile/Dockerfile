@@ -8,8 +8,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
 RUN apk add --no-cache openjdk17 maven
 
 WORKDIR /spring-app
-COPY . .
-RUN mvn -T 1.5C clean install
+COPY SpringBooTex .
+RUN mvn clean install
 
 CMD mvn spring-boot:run
 
