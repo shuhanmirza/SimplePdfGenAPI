@@ -5,7 +5,7 @@ SimplePdfGenAPI is a PDF Generator REST Service that can be deployed out of the 
 Under the hood, it uses [pdfLaTeX](https://tug.org/applications/pdftex) to create a PDF from LaTeX template. For generating PDFs from HTML templates it uses [openhtmltopdf](https://github.com/danfickle/openhtmltopdf) and Thymeleaf.
 
 ## Getting Started
-You can download the source code for SimplePdfGenAPI by running `git clone github.com/shuhanmirza/SimplePdfGenAPI` in your terminal.  
+You can download the source code for SimplePdfGenAPI by running `git clone https://github.com/shuhanmirza/SimplePdfGenAPI.git` in your terminal.  
     
 After that, you can run `docker-compose up --build`.
    
