@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.shuhanmirza.simplepdfgenapi.component.PdfGenerator;
 import org.shuhanmirza.simplepdfgenapi.dto.FontFile;
 import org.shuhanmirza.simplepdfgenapi.dto.PdfBuildingInstruction;
+import org.shuhanmirza.simplepdfgenapi.service.PdfCleanUpService;
 import org.shuhanmirza.simplepdfgenapi.service.UtilityService;
 import org.shuhanmirza.simplepdfgenapi.util.Utility;
 import org.springframework.stereotype.Component;
@@ -32,9 +33,11 @@ import java.util.stream.Collectors;
 public class HtmlTemplatePdfGenerator implements PdfGenerator {
     private final SpringTemplateEngine springTemplateEngine;
     private final UtilityService utilityService;
+    private final PdfCleanUpService pdfCleanUpService;
 
-    public HtmlTemplatePdfGenerator(UtilityService utilityService) {
+    public HtmlTemplatePdfGenerator(UtilityService utilityService, PdfCleanUpService pdfCleanUpService) {
         this.utilityService = utilityService;
+        this.pdfCleanUpService = pdfCleanUpService;
         springTemplateEngine = new SpringTemplateEngine();
 
         var stringTemplateResolver = new StringTemplateResolver();
@@ -49,6 +52,8 @@ public class HtmlTemplatePdfGenerator implements PdfGenerator {
                 .flatMap(tempFolderPath -> {
                     log.info("HtmlGenerator: Temp Folder Generated {}", tempFolderPath);
                     var context = generateContext(pdfBuildingInstruction);
+
+                    pdfCleanUpService.scheduleFolderForDeletion(tempFolderPath);
 
                     return generateHtml(pdfBuildingInstruction, context)
                             .flatMap(generatedHtml -> generatedPdfFromHtml(pdfBuildingInstruction, tempFolderPath, generatedHtml, tempFolderPath.concat("/").concat(Utility.HTML_FILE_OUTPUT)));
