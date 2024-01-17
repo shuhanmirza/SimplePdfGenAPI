@@ -8,7 +8,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
 RUN apk add --no-cache openjdk17 maven
 
 WORKDIR /spring-app
-COPY SpringBooTex .
+COPY SimplePdfGenAPI .
 RUN mvn clean install
 
 CMD mvn spring-boot:run

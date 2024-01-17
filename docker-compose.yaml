@@ -1,12 +1,12 @@
 version: '3.1'
 
 services:
-  springbootex:
+  simplepdfgenapi:
     build:
       context: .
       dockerfile: Dockerfile/Dockerfile
     restart: unless-stopped
-    container_name: "springbootex"
+    container_name: "SimplePdfGenAPI"
     ports:
       - "10800:10800"
 
