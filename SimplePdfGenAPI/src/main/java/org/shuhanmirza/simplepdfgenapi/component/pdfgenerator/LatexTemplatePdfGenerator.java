@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.shuhanmirza.simplepdfgenapi.component.PdfGenerator;
 import org.shuhanmirza.simplepdfgenapi.dto.PdfBuildingInstruction;
+import org.shuhanmirza.simplepdfgenapi.service.PdfCleanUpService;
 import org.shuhanmirza.simplepdfgenapi.service.UtilityService;
 import org.shuhanmirza.simplepdfgenapi.util.Utility;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LatexTemplatePdfGenerator implements PdfGenerator {
     private final UtilityService utilityService;
+    private final PdfCleanUpService pdfCleanUpService;
 
     @Override
     public Mono<InputStream> generatePdfFromTemplate(PdfBuildingInstruction pdfBuildingInstruction) {
@@ -34,6 +36,8 @@ public class LatexTemplatePdfGenerator implements PdfGenerator {
         return Mono.fromFuture(utilityService.createTemporaryDirectory(Utility.APPLICATION_NAME))
                 .flatMap(tempFolderPath -> {
                     log.info("LatexGenerator: Temp Folder Generated {}", tempFolderPath);
+                    pdfCleanUpService.scheduleFolderForDeletion(tempFolderPath);
+
                     return downloadAllFiles(pdfBuildingInstruction, tempFolderPath)
                             .flatMap(fileDownloaded -> prepareLatexFile(pdfBuildingInstruction, tempFolderPath))
                             .flatMap(latexFilePath -> Mono.fromFuture(compilePdf(tempFolderPath)))

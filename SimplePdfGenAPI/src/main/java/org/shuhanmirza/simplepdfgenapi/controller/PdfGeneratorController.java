@@ -29,9 +29,4 @@ public class PdfGeneratorController {
     public Mono<ResponseEntity<?>> generatePdf(@RequestBody @Valid PdfGenerationRequest pdfGenerationRequest) {
         return pdfGenerationService.generatePdfFromTemplate(pdfGenerationRequest);
     }
-
-    //TODO: return file in a callback url
-    //TODO: span and trace id
-    //TODO: add password protection for pdf
-    //TODO: clean up temp folder after completion
 }
