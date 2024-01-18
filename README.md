@@ -55,7 +55,9 @@ SimplePdfGenAPI can respond with three different media types; `application/json`
 
 ## Example
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/rW-RhwS3fqY?si=jd1P27hh3KOsYRgR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+Clicking on this gif will take you to Youtube.
+
+[![Example Video](Doc/SimplePdfGenAPI.gif)](https://www.youtube.com/watch?v=rW-RhwS3fqY)
 
 ### Generating a PDF from a latex template
 
